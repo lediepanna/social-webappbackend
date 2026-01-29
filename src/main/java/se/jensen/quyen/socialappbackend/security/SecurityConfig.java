@@ -24,35 +24,34 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // ❌ No CSRF for JWT
                 .csrf().disable()
 
-                // ❌ No session (JWT = stateless)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
 
-                // 🔐 Authorization rules
                 .authorizeRequests()
 
-                // 🔓 Swagger
+                // Swagger
                 .antMatchers(
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/v3/api-docs/**"
                 ).permitAll()
 
-                // 🔓 Auth endpoints
-                .antMatchers("/api/auth/**").permitAll()
+                // Public endpoints
+                .antMatchers(
+                        "/api/auth/**",
+                        "/api/test/public",
+                        "/api/test/hello"
+                ).permitAll()
 
-                // 🔐 Protected API
+                // Protected endpoints
                 .antMatchers("/api/posts/**").hasRole("USER")
 
-                // 🔐 Everything else
                 .anyRequest().authenticated()
                 .and()
 
-                // 🔑 JWT filter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

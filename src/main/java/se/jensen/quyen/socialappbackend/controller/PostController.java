@@ -23,6 +23,7 @@ public class PostController {
         this.postService = postService;
     }
 
+    // CREATE
     @PostMapping
     public ResponseEntity<PostResponseDTO> createPost(
             @RequestBody PostRequestDTO request,
@@ -35,6 +36,7 @@ public class PostController {
         return ResponseEntity.ok(toDto(post));
     }
 
+    // READ ALL
     @GetMapping
     public ResponseEntity<List<PostResponseDTO>> getAll() {
         return ResponseEntity.ok(
@@ -43,6 +45,31 @@ public class PostController {
                         .map(this::toDto)
                         .collect(Collectors.toList())
         );
+    }
+
+    // UPDATE ✅
+    @PutMapping("/{id}")
+    public ResponseEntity<PostResponseDTO> updatePost(
+            @PathVariable Long id,
+            @RequestBody PostRequestDTO request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Post updatedPost = postService.updatePost(
+                id,
+                request.getContent(),
+                userDetails.getUsername());
+
+        return ResponseEntity.ok(toDto(updatedPost));
+    }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        postService.deletePost(id, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 
     private PostResponseDTO toDto(Post post) {
